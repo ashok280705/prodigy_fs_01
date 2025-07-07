@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/dbConnect";
-import User from "@/models/User";
+import User from "@/model/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
@@ -13,6 +13,9 @@ export async function POST(req) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await User.create({ email, password: hashedPassword });
-
-  return new Response(JSON.stringify({ msg: "User registered", user }), { status: 201 });
+4
+  return new Response(JSON.stringify({ msg: "User already exists" }), {
+  status: 400,
+  headers: { 'Content-Type': 'application/json' }
+});
 }
