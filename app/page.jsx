@@ -53,7 +53,7 @@ export default function Login() {
 
     if (res.ok) {
       alert("Signup successful");
-      router.push("/dashboard");
+      router.push("/Dashboard");
     } else {
       alert(data.msg || "Signup failed");
     }
