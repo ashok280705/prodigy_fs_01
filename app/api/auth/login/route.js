@@ -1,22 +1,29 @@
-import { connectDB } from "@/lib/dbConnect";
+import { NextResponse } from "next/server";
 import User from "@/model/User";
+import connectDB from "@/lib/dbConnect";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export async function POST(req) {
-  const { email, password } = await req.json();
   await connectDB();
+  const { email, password } = await req.json();
 
   const user = await User.findOne({ email });
-  if (!user) return new Response(JSON.stringify({ msg: "No user found" }), { status: 404 });
+  if (!user) {
+    return NextResponse.json({ msg: "User does not exist" }, { status: 400 });
+  }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return new Response(JSON.stringify({ msg: "Invalid password" }), { status: 401 });
+  if (!isMatch) {
+    return NextResponse.json({ msg: "Invalid credentials" }, { status: 400 });
+  }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 
- return new Response(JSON.stringify({ msg: "User already exists" }), {
-  status: 400,
-  headers: { 'Content-Type': 'application/json' }
-});
+  return NextResponse.json(
+    { token, msg: "Login successful" },  // ✅ include your alert message here
+    { status: 200 }
+  );
 }
